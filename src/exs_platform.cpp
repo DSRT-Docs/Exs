@@ -1,6 +1,6 @@
-// exs_platform.cpp
 #include "exs_platform.hpp"
 #include "exs_platform.h"
+#include "platform_impl.hpp"
 #include <sstream>
 #include <iomanip>
 #include <cstring>
@@ -11,7 +11,6 @@ namespace exs {
 
 class Platform::Impl {
 private:
-    // Internal cache dan state
     std::string cached_name;
     uint32_t cached_cpu_count;
     uint64_t cached_total_memory;
@@ -21,6 +20,8 @@ public:
         cached_name = exs_platform_get_name();
         cached_cpu_count = exs_platform_get_cpu_count();
         cached_total_memory = exs_platform_get_total_memory();
+        
+        internal::PlatformImpl::update_cache(cached_cpu_count, cached_total_memory);
     }
     
     const std::string& get_name() const { return cached_name; }
@@ -34,7 +35,7 @@ Platform::Impl& Platform::get_impl() {
 }
 
 std::string Platform::name() {
-    return exs_platform_get_name();
+    return get_impl().get_name();
 }
 
 std::string Platform::architecture() {
@@ -60,10 +61,24 @@ PlatformType Platform::type() {
 }
 
 uint32_t Platform::cpu_count() {
-    return exs_platform_get_cpu_count();
+    return internal::PlatformImpl::get_cpu_count_cached();
 }
 
 ProcessorVendor Platform::processor_vendor() {
+    const char* arch = exs_platform_get_architecture();
+    
+    if (std::strstr(arch, "ARM") || std::strstr(arch, "aarch64")) {
+#ifdef __APPLE__
+        return ProcessorVendor::Apple;
+#else
+        return ProcessorVendor::ARM;
+#endif
+    }
+    
+    if (std::strstr(arch, "x86") || std::strstr(arch, "x64")) {
+        return ProcessorVendor::Intel;
+    }
+    
     return ProcessorVendor::Unknown;
 }
 
@@ -76,7 +91,7 @@ uint32_t Platform::cpu_frequency_mhz() {
 }
 
 uint64_t Platform::total_memory() {
-    return exs_platform_get_total_memory();
+    return internal::PlatformImpl::get_total_memory_cached();
 }
 
 uint64_t Platform::available_memory() {
@@ -84,7 +99,7 @@ uint64_t Platform::available_memory() {
 }
 
 uint32_t Platform::page_size() {
-    return 4096; // Default
+    return 4096;
 }
 
 uint32_t Platform::cache_line_size() {
@@ -104,55 +119,55 @@ bool Platform::has_neon() {
 }
 
 bool Platform::has_sse2() {
-    return false; // Implement later
+    return false;
 }
 
 bool Platform::has_sse3() {
-    return false; // Implement later
+    return false;
 }
 
 bool Platform::has_sse41() {
-    return false; // Implement later
+    return false;
 }
 
 bool Platform::has_sse42() {
-    return false; // Implement later
+    return false;
 }
 
 bool Platform::has_avx2() {
-    return false; // Implement later
+    return false;
 }
 
 bool Platform::has_avx512() {
-    return false; // Implement later
+    return false;
 }
 
 bool Platform::has_fma() {
-    return false; // Implement later
+    return false;
 }
 
 bool Platform::has_aes() {
-    return false; // Implement later
+    return false;
 }
 
 bool Platform::has_sha() {
-    return false; // Implement later
+    return false;
 }
 
 uint32_t Platform::l1_cache_size() {
-    return 0; // Implement later
+    return 0;
 }
 
 uint32_t Platform::l2_cache_size() {
-    return 0; // Implement later
+    return 0;
 }
 
 uint32_t Platform::l3_cache_size() {
-    return 0; // Implement later
+    return 0;
 }
 
 uint32_t Platform::tlb_size() {
-    return 0; // Implement later
+    return 0;
 }
 
 Endianness Platform::endianness() {
@@ -179,43 +194,43 @@ bool Platform::is_debugger_present() {
 }
 
 bool Platform::is_administrator() {
-    return false; // Implement later
+    return false;
 }
 
 bool Platform::is_virtual_machine() {
-    return false; // Implement later
+    return false;
 }
 
 bool Platform::is_battery_powered() {
-    return false; // Implement later
+    return false;
 }
 
 bool Platform::is_network_connected() {
-    return false; // Implement later
+    return false;
 }
 
 std::string Platform::temp_directory() {
-    return ""; // Implement later
+    return "";
 }
 
 std::string Platform::home_directory() {
-    return ""; // Implement later
+    return "";
 }
 
 std::string Platform::current_directory() {
-    return ""; // Implement later
+    return "";
 }
 
 std::string Platform::executable_path() {
-    return ""; // Implement later
+    return "";
 }
 
 std::string Platform::module_path(void* address) {
-    return ""; // Implement later
+    return "";
 }
 
 std::vector<std::string> Platform::library_paths() {
-    return {}; // Implement later
+    return std::vector<std::string>();
 }
 
 void Platform::debug_break() {
@@ -251,23 +266,23 @@ uint64_t Platform::uptime() {
 }
 
 uint64_t Platform::cpu_cycles() {
-    return 0; // Implement later
+    return 0;
 }
 
 bool Platform::set_thread_affinity(uint32_t core_mask) {
-    return false; // Implement later
+    return false;
 }
 
 uint32_t Platform::thread_affinity() {
-    return 0; // Implement later
+    return 0;
 }
 
 bool Platform::set_thread_priority(int priority) {
-    return false; // Implement later
+    return false;
 }
 
 int Platform::thread_priority() {
-    return 0; // Implement later
+    return 0;
 }
 
 void Platform::yield() {
@@ -287,63 +302,63 @@ void Platform::aligned_free(void* ptr) {
 }
 
 size_t Platform::allocation_granularity() {
-    return 4096; // Default page size
+    return 4096;
 }
 
 std::string Platform::system_fingerprint() {
-    return ""; // Implement later
+    return "";
 }
 
 std::string Platform::os_version() {
-    return ""; // Implement later
+    return "";
 }
 
 std::string Platform::kernel_version() {
-    return ""; // Implement later
+    return "";
 }
 
 std::string Platform::hostname() {
-    return ""; // Implement later
+    return "";
 }
 
 std::string Platform::username() {
-    return ""; // Implement later
+    return "";
 }
 
 uint32_t Platform::process_id() {
-    return 0; // Implement later
+    return 0;
 }
 
 uint32_t Platform::parent_process_id() {
-    return 0; // Implement later
+    return 0;
 }
 
 uint32_t Platform::session_id() {
-    return 0; // Implement later
+    return 0;
 }
 
 uint32_t Platform::display_count() {
-    return 0; // Implement later
+    return 0;
 }
 
 std::string Platform::gpu_name() {
-    return ""; // Implement later
+    return "";
 }
 
 std::string Platform::system_manufacturer() {
-    return ""; // Implement later
+    return "";
 }
 
 std::string Platform::system_model() {
-    return ""; // Implement later
+    return "";
 }
 
 std::string Platform::bios_version() {
-    return ""; // Implement later
+    return "";
 }
 
 double Platform::cpu_load() {
-    return 0.0; // Implement later
+    return 0.0;
 }
 
 double Platform::memory_usage() {
@@ -354,11 +369,11 @@ double Platform::memory_usage() {
 }
 
 double Platform::disk_usage(const std::string& path) {
-    return 0.0; // Implement later
+    return 0.0;
 }
 
 std::vector<double> Platform::cpu_temperatures() {
-    return {}; // Implement later
+    return std::vector<double>();
 }
 
 std::string Platform::memory_string(bool human_readable) {
