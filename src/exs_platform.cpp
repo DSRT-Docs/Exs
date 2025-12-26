@@ -1,13 +1,45 @@
+/*
+ * Copyright [2024] [DSRT-Docs]
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 #include "exs_platform.hpp"
 #include "exs_platform.h"
-#include "platform_impl.hpp"
+#include "internal/platform_impl.hpp"
+#include "internal/License.hpp"
 #include <sstream>
 #include <iomanip>
 #include <cstring>
 #include <vector>
 #include <thread>
+#include <iostream>
 
 namespace exs {
+
+// License initialization
+namespace {
+    struct LicenseInitializer {
+        LicenseInitializer() {
+            // Auto-print license notice jika di-compile dengan flag tertentu
+            #ifdef EXS_PRINT_LICENSE_NOTICE
+            license::print_short_notice();
+            #endif
+        }
+    };
+    
+    LicenseInitializer license_init;
+}
 
 class Platform::Impl {
 private:
@@ -34,6 +66,16 @@ Platform::Impl& Platform::get_impl() {
     return instance;
 }
 
+// Tambah fungsi license-related
+void Platform::print_license() {
+    license::print_license_notice();
+}
+
+const char* Platform::license_text() {
+    return license::notice;
+}
+
+// Fungsi existing tetap sama...
 std::string Platform::name() {
     return get_impl().get_name();
 }
@@ -424,6 +466,8 @@ void Platform::print_info() {
     std::cout << "  64-bit: " << (is_64bit() ? "Yes" : "No") << std::endl;
     std::cout << "  Debugger: " << (is_debugger_present() ? "Yes" : "No") << std::endl;
     
+    // License info footer
+    std::cout << "\n" << license::short_notice << std::endl;
     std::cout << "==========================" << std::endl;
 }
 
