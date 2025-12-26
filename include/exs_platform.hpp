@@ -1,3 +1,19 @@
+/*
+ * Copyright [2024] [DSRT-Docs]
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 #ifndef EXS_PLATFORM_HPP
 #define EXS_PLATFORM_HPP
 
@@ -47,6 +63,10 @@ public:
     Platform() = delete;
     Platform(const Platform&) = delete;
     Platform& operator=(const Platform&) = delete;
+    
+    // === LICENSE FUNCTIONS ===
+    static void print_license();
+    static const char* license_text();
     
     // === SEMUA FUNGSI HANYA DEKLARASI (implementasi di .cpp) ===
     
