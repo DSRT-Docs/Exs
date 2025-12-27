@@ -7,25 +7,37 @@
 namespace Exs {
 namespace Platform {
 
+/// Core platform initialization and management
 class Exs_Platform {
 private:
-    static bool s_Initialized;
-    static uint64_t s_StartupTime;
+    static bool s_Initialized;          ///< Platform initialization flag
+    static uint64_t s_StartupTime;      ///< Platform startup timestamp (ms)
     
 public:
-    // Core platform functions
+    /// @brief Initialize platform subsystems
+    /// @note Must be called before any other platform functions
     static void Exs_Initialize();
+    
+    /// @brief Shutdown platform subsystems
     static void Exs_Shutdown();
     
-    // Platform information
-    static const char* Exs_GetPlatformName();
-    static const char* Exs_GetVersionString();
+    /// @brief Get platform name
+    /// @return Platform name string (static, do not free)
+    static const char* Exs_GetPlatformName() noexcept;
     
-    // Internal utilities
-    static uint64_t Exs_GetInternalTimestamp();
-    static bool Exs_IsInitialized();
+    /// @brief Get platform version string
+    /// @return Version string (static, do not free)
+    static const char* Exs_GetVersionString() noexcept;
     
-    // Debug functions
+    /// @brief Get internal timestamp for platform operations
+    /// @return Timestamp in milliseconds
+    static uint64_t Exs_GetInternalTimestamp() noexcept;
+    
+    /// @brief Check if platform is initialized
+    /// @return true if platform is initialized
+    static bool Exs_IsInitialized() noexcept;
+    
+    /// @brief Dump platform information to debug output
     static void Exs_DumpPlatformInfo();
 };
 
